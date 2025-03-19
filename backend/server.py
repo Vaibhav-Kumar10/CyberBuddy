@@ -25,8 +25,8 @@ def init_db():
 init_db()
 
 # Set API Keys
-genai.configure(api_key="AIzaSyAGu5gARK6nc-6RSDOHKgisESNhp9kWxe4")
-GOOGLE_SAFE_BROWSING_API_KEY = "AIzaSyC4B4MF7856AiE25w4TE9usHqzuYN0_r2k"
+genai.configure(api_key="your-api-key")
+GOOGLE_SAFE_BROWSING_API_KEY = "your-api-key"
 
 @app.route("/chat", methods=["POST"])
 def chat():
