@@ -53,12 +53,17 @@ def chat():
     try:
         model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content(user_message)
-        bot_response = response.text.strip()
+        # bot_response = response.text.strip()
+        bot_response = (
+            response.text.strip()
+            if response and response.text
+            else "⚠️ No response from the model."
+        )
     except Exception as e:
         logger.error(f"Error generating response: {e}")
         bot_response = f"⚠️ Error: {str(e)}"
 
-    return jsonify({"response": bot_response})
+    return jsonify({"response": bot_response}), 200
 
 
 @app.route("/verify", methods=["POST"])

@@ -5,17 +5,37 @@ document.addEventListener("DOMContentLoaded", function () {
     const verifyBtn = document.getElementById("verify-link-btn");
     const reportBtn = document.getElementById("report-link-btn");
 
-    // Unified message display function
-    function displayMessage(sender, message) {
+    function displayMessage(sender, message, isHTML = false) {
         const msg = document.createElement("div");
-        msg.textContent = sender + ": " + message;
         msg.style.padding = "8px";
         msg.style.margin = "5px 0";
         msg.style.borderRadius = "5px";
+
+        msg.style.boxShadow = "0px 2px 8px rgba(0, 0, 0, 0.1)";
         msg.style.background = sender === "Bot" ? "#e1f5fe" : "#c8e6c9";
+        msg.style.maxWidth = "90%";
+        msg.style.whiteSpace = "pre-wrap";
+        msg.style.lineHeight = "1.6";
+        msg.style.fontFamily = "Arial, sans-serif";
+
+        // Proper Markdown-like formatting
+        if (isHTML) {
+            msg.innerHTML = message
+                .replace(/^\s*\*\s+(.*)/gm, "<li>$1</li>")                 // Convert list items
+                .replace(/(<li>.*<\/li>)(?!<\/ul>)/g, "<ul>$1</ul>")      // Wrap list items in <ul>
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")         // Bold
+                .replace(/\*(.*?)\*/g, "<em>$1</em>")                    // Italics
+                .replace(/__(.*?)__/g, "<strong>$1</strong>")            // Bold (underscores)
+                .replace(/_(.*?)_/g, "<em>$1</em>")                      // Italics (underscores)
+                .replace(/\n/g, "<br>");                                // Newlines
+        } else {
+            msg.textContent = `${sender}: ${message}`;
+        }
+
         chatBox.appendChild(msg);
         chatBox.scrollTop = chatBox.scrollHeight;
     }
+
 
     const tipExplanations = {
         "Never share your passwords online.": "🔑 Your password is like a key to your home. If shared, anyone can access your personal data! Always keep it secret and use a password manager.",
