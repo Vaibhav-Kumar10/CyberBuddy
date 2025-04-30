@@ -4,6 +4,7 @@ import time
 import google.generativeai as genai
 import requests
 import logging
+import re
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -37,10 +38,12 @@ def init_db():
 init_db()
 
 # Set API Keys
-GENAI_API_KEY = "key"
+GENAI_API_KEY = "AIzaSyD40gsQfI-mxCmFs6ode-PkREoKL54pLLA"
+# GENAI_API_KEY = "key"
 genai.configure(api_key=GENAI_API_KEY)
 
-GOOGLE_SAFE_BROWSING_API_KEY = "key"
+# GOOGLE_SAFE_BROWSING_API_KEY = "key"
+GENAI_API_KEY = "AIzaSyD40gsQfI-mxCmFs6ode-PkREoKL54pLLA"
 
 
 @app.route("/chat", methods=["POST"])
@@ -53,12 +56,13 @@ def chat():
     try:
         model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content(user_message)
-        # bot_response = response.text.strip()
+
         bot_response = (
             response.text.strip()
             if response and response.text
             else "⚠️ No response from the model."
         )
+
     except Exception as e:
         logger.error(f"Error generating response: {e}")
         bot_response = f"⚠️ Error: {str(e)}"

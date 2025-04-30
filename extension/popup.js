@@ -5,12 +5,42 @@ document.addEventListener("DOMContentLoaded", function () {
     const verifyBtn = document.getElementById("verify-link-btn");
     const reportBtn = document.getElementById("report-link-btn");
 
+    // function displayMessage(sender, message, isHTML = false) {
+    //     const msg = document.createElement("div");
+    //     msg.style.padding = "8px";
+    //     msg.style.margin = "5px 0";
+    //     msg.style.borderRadius = "5px";
+
+    //     msg.style.boxShadow = "0px 2px 8px rgba(0, 0, 0, 0.1)";
+    //     msg.style.background = sender === "Bot" ? "#e1f5fe" : "#c8e6c9";
+    //     msg.style.maxWidth = "90%";
+    //     msg.style.whiteSpace = "pre-wrap";
+    //     msg.style.lineHeight = "1.6";
+    //     msg.style.fontFamily = "Arial, sans-serif";
+
+    //     // Proper Markdown-like formatting
+    //     if (isHTML) {
+    //         msg.innerHTML = message
+    //             .replace(/^\s*\*\s+(.*)/gm, "<li>$1</li>")                 // Convert list items
+    //             .replace(/(<li>.*<\/li>)(?!<\/ul>)/g, "<ul>$1</ul>")      // Wrap list items in <ul>
+    //             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")         // Bold
+    //             .replace(/\*(.*?)\*/g, "<em>$1</em>")                    // Italics
+    //             .replace(/__(.*?)__/g, "<strong>$1</strong>")            // Bold (underscores)
+    //             .replace(/_(.*?)_/g, "<em>$1</em>")                      // Italics (underscores)
+    //             .replace(/\n/g, "<br>");                                // Newlines
+    //     } else {
+    //         msg.textContent = `${sender}: ${message}`;
+    //     }
+
+    //     chatBox.appendChild(msg);
+    //     chatBox.scrollTop = chatBox.scrollHeight;
+    // }
+
     function displayMessage(sender, message, isHTML = false) {
         const msg = document.createElement("div");
         msg.style.padding = "8px";
         msg.style.margin = "5px 0";
         msg.style.borderRadius = "5px";
-
         msg.style.boxShadow = "0px 2px 8px rgba(0, 0, 0, 0.1)";
         msg.style.background = sender === "Bot" ? "#e1f5fe" : "#c8e6c9";
         msg.style.maxWidth = "90%";
@@ -18,16 +48,52 @@ document.addEventListener("DOMContentLoaded", function () {
         msg.style.lineHeight = "1.6";
         msg.style.fontFamily = "Arial, sans-serif";
 
-        // Proper Markdown-like formatting
         if (isHTML) {
-            msg.innerHTML = message
-                .replace(/^\s*\*\s+(.*)/gm, "<li>$1</li>")                 // Convert list items
-                .replace(/(<li>.*<\/li>)(?!<\/ul>)/g, "<ul>$1</ul>")      // Wrap list items in <ul>
-                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")         // Bold
-                .replace(/\*(.*?)\*/g, "<em>$1</em>")                    // Italics
-                .replace(/__(.*?)__/g, "<strong>$1</strong>")            // Bold (underscores)
-                .replace(/_(.*?)_/g, "<em>$1</em>")                      // Italics (underscores)
-                .replace(/\n/g, "<br>");                                // Newlines
+            // First, escape the HTML to prevent injection
+            let processed = message.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            // Handle bullet points first
+            const lines = processed.split('\n');
+            let result = [];
+            let inList = false;
+
+            for (const line of lines) {
+                if (line.match(/^\s*\*\s+/)) {
+                    const content = line.replace(/^\s*\*\s+/, '');
+                    if (!inList) {
+                        result.push('<ul>');
+                        inList = true;
+                    }
+                    result.push(`<li>${content}</li>`);
+                } else {
+                    if (inList) {
+                        result.push('</ul>');
+                        inList = false;
+                    }
+                    result.push(line);
+                }
+            }
+
+            if (inList) {
+                result.push('</ul>');
+            }
+
+            processed = result.join('\n');
+
+            // Now handle formatting - process triple asterisks before double 
+            processed = processed
+                // Triple asterisks
+                .replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>')
+                // Double asterisks
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                // Single asterisks
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                // Convert remaining newlines
+                .replace(/\n/g, '<br>');
+
+            msg.innerHTML = `<strong>${sender}:</strong> ${processed}`;
         } else {
             msg.textContent = `${sender}: ${message}`;
         }
